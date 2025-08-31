@@ -1,4 +1,4 @@
-import { VStack, Box, Text, Badge, Button, HStack } from "@chakra-ui/react";
+import { VStack, Box, Text, Badge, Button, Stack } from "@chakra-ui/react";
 
 export default function DeletedList({ todos, onRestore }) {
   if (todos.length === 0)
@@ -13,7 +13,7 @@ export default function DeletedList({ todos, onRestore }) {
       {todos.map((todo) => (
         <Box
           key={todo._id}
-          p={4}
+          p={{ base: 3, md: 4 }}
           borderRadius="md"
           borderWidth="1px"
           borderColor="red.300"
@@ -21,9 +21,15 @@ export default function DeletedList({ todos, onRestore }) {
           shadow="sm"
           _hover={{ shadow: "md" }}
         >
-          <HStack justify="space-between" align="start">
-            <VStack align="start" spacing={1}>
-              <Text fontWeight="bold" fontSize="md">
+          <Stack
+            direction={{ base: "column", md: "row" }}
+            justify="space-between"
+            align={{ base: "stretch", md: "center" }}
+            spacing={{ base: 3, md: 0 }}
+          >
+            {/* Task Details */}
+            <VStack align="start" spacing={1} flex="1">
+              <Text fontWeight="bold" fontSize={{ base: "md", md: "lg" }}>
                 {todo.name}
               </Text>
               <Text fontSize="sm" color="gray.600">
@@ -36,7 +42,9 @@ export default function DeletedList({ todos, onRestore }) {
                 Due: {new Date(todo.dueDate).toLocaleDateString()}
               </Text>
             </VStack>
-            <VStack align="end" spacing={2}>
+
+            {/* Restore Button */}
+            <VStack align={{ base: "stretch", md: "end" }} spacing={2} mt={{ base: 2, md: 0 }}>
               <Badge colorScheme="red" fontSize="0.8em">
                 Deleted
               </Badge>
@@ -44,7 +52,7 @@ export default function DeletedList({ todos, onRestore }) {
                 Restore
               </Button>
             </VStack>
-          </HStack>
+          </Stack>
         </Box>
       ))}
     </VStack>

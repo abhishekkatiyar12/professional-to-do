@@ -14,6 +14,7 @@ import {
   Spinner,
   Text,
   ChakraProvider,
+  Stack,
 } from "@chakra-ui/react";
 import { InfoOutlineIcon } from "@chakra-ui/icons";
 
@@ -32,7 +33,6 @@ export default function TodoApp() {
   const token = localStorage.getItem("token");
   const axiosConfig = { headers: { Authorization: `Bearer ${token}` } };
 
-  // Fetch todos on mount
   useEffect(() => {
     const fetchTodos = async () => {
       try {
@@ -48,18 +48,15 @@ export default function TodoApp() {
     fetchTodos();
   }, []);
 
-  // Add new task
-const addTodo = async (todo) => {
-  try {
-    const res = await axios.post("https://professional-to-do.onrender.com/api/todos", todo, axiosConfig);
-    setTodos([res.data.todo, ...todos]);
-  } catch (err) {
-    console.error("Error adding todo:", err.response?.data || err.message);
-  }
-};
+  const addTodo = async (todo) => {
+    try {
+      const res = await axios.post("https://professional-to-do.onrender.com/api/todos", todo, axiosConfig);
+      setTodos([res.data.todo, ...todos]);
+    } catch (err) {
+      console.error("Error adding todo:", err.response?.data || err.message);
+    }
+  };
 
-
-  // Complete task
   const completeTodo = async (id) => {
     try {
       const res = await axios.put(
@@ -73,7 +70,6 @@ const addTodo = async (todo) => {
     }
   };
 
-  // Soft delete task
   const deleteTodo = async (id) => {
     try {
       const res = await axios.delete(`https://professional-to-do.onrender.com/api/todos/${id}`, axiosConfig);
@@ -83,7 +79,6 @@ const addTodo = async (todo) => {
     }
   };
 
-  // Restore deleted task
   const restoreTodo = async (id) => {
     try {
       const res = await axios.put(
@@ -97,21 +92,19 @@ const addTodo = async (todo) => {
     }
   };
 
-  // Update due date
- const onUpdateTodo = async (id, updatedFields) => {
-  try {
-    const res = await axios.put(
-      `https://professional-to-do.onrender.com/api/todos/${id}`,
-      updatedFields,
-      axiosConfig
-    );
-    setTodos(todos.map(t => (t._id === id ? res.data.todo : t)));
-  } catch (err) {
-    console.error(err);
-  }
-};
+  const onUpdateTodo = async (id, updatedFields) => {
+    try {
+      const res = await axios.put(
+        `https://professional-to-do.onrender.com/api/todos/${id}`,
+        updatedFields,
+        axiosConfig
+      );
+      setTodos(todos.map(t => (t._id === id ? res.data.todo : t)));
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-  // Filter pending tasks
   const getFilteredTodos = () => {
     const pendingTodos = todos.filter(t => t.status === "pending");
     if (filter === "today") return pendingTodos.filter(t => isToday(t.dueDate));
@@ -120,11 +113,10 @@ const addTodo = async (todo) => {
     return pendingTodos;
   };
 
-  // Empty List UI
   const EmptyList = ({ message }) => (
     <VStack spacing={3} mt={6} p={6} border="1px dashed gray" borderRadius="md" bg="gray.50">
       <InfoOutlineIcon w={10} h={10} color="gray.400" />
-      <Text fontSize="lg" color="gray.600" textAlign="center">
+      <Text fontSize={{ base: "md", md: "lg" }} color="gray.600" textAlign="center">
         {message}
       </Text>
     </VStack>
@@ -141,65 +133,67 @@ const addTodo = async (todo) => {
 
   return (
     <ChakraProvider theme={theme}>
-      <Box maxW="900px" mx="auto" p={6}>
-        <Heading mb={6} textAlign="center">
+      <Box maxW="900px" mx="auto" p={{ base: 4, md: 6 }}>
+        <Heading mb={6} textAlign="center" fontSize={{ base: "2xl", md: "3xl" }}>
           📝 Professional To-Do App
         </Heading>
 
-        {/* Add New Task */}
-        <AddTodo addTodo={addTodo} />
+        <Stack spacing={4}>
+          {/* Add New Task */}
+          <AddTodo addTodo={addTodo} />
 
-        {/* Tabs */}
-        <Tabs variant="enclosed" mt={6}>
-          <TabList>
-            <Tab>Pending</Tab>
-            <Tab>Completed</Tab>
-            <Tab>Deleted</Tab>
-          </TabList>
+          {/* Tabs */}
+          <Tabs variant="enclosed">
+            <TabList flexWrap="wrap">
+              <Tab>Pending</Tab>
+              <Tab>Completed</Tab>
+              <Tab>Deleted</Tab>
+            </TabList>
 
-          <TabPanels>
-            {/* Pending */}
-            <TabPanel>
-              <ButtonGroup mb={4} size="sm" isAttached variant="outline">
-                <Button onClick={() => setFilter("all")} colorScheme={filter === "all" ? "blue" : "gray"}>All</Button>
-                <Button onClick={() => setFilter("today")} colorScheme={filter === "today" ? "blue" : "gray"}>Today</Button>
-                <Button onClick={() => setFilter("tomorrow")} colorScheme={filter === "tomorrow" ? "blue" : "gray"}>Tomorrow</Button>
-                <Button onClick={() => setFilter("overdue")} colorScheme={filter === "overdue" ? "blue" : "gray"}>Overdue</Button>
-              </ButtonGroup>
+            <TabPanels>
+              {/* Pending */}
+              <TabPanel>
+                <ButtonGroup mb={4} size="sm" isAttached variant="outline" flexWrap="wrap">
+                  <Button onClick={() => setFilter("all")} colorScheme={filter === "all" ? "blue" : "gray"}>All</Button>
+                  <Button onClick={() => setFilter("today")} colorScheme={filter === "today" ? "blue" : "gray"}>Today</Button>
+                  <Button onClick={() => setFilter("tomorrow")} colorScheme={filter === "tomorrow" ? "blue" : "gray"}>Tomorrow</Button>
+                  <Button onClick={() => setFilter("overdue")} colorScheme={filter === "overdue" ? "blue" : "gray"}>Overdue</Button>
+                </ButtonGroup>
 
-              {getFilteredTodos().length === 0 ? (
-                <EmptyList message="No pending tasks! Add something new ✨" />
-              ) : (
-                <VStack spacing={4} align="stretch">
-                  <TodoList
-                    todos={getFilteredTodos()}
-                    onComplete={completeTodo}
-                    onDelete={deleteTodo}
-                    onUpdateTodo={onUpdateTodo}
-                  />
-                </VStack>
-              )}
-            </TabPanel>
+                {getFilteredTodos().length === 0 ? (
+                  <EmptyList message="No pending tasks! Add something new ✨" />
+                ) : (
+                  <VStack spacing={4} align="stretch">
+                    <TodoList
+                      todos={getFilteredTodos()}
+                      onComplete={completeTodo}
+                      onDelete={deleteTodo}
+                      onUpdateTodo={onUpdateTodo}
+                    />
+                  </VStack>
+                )}
+              </TabPanel>
 
-            {/* Completed */}
-            <TabPanel>
-              {todos.filter(t => t.status === "completed").length === 0 ? (
-                <EmptyList message="No tasks completed yet 🎯" />
-              ) : (
-                <CompletedList todos={todos.filter(t => t.status === "completed")} />
-              )}
-            </TabPanel>
+              {/* Completed */}
+              <TabPanel>
+                {todos.filter(t => t.status === "completed").length === 0 ? (
+                  <EmptyList message="No tasks completed yet 🎯" />
+                ) : (
+                  <CompletedList todos={todos.filter(t => t.status === "completed")} />
+                )}
+              </TabPanel>
 
-            {/* Deleted */}
-            <TabPanel>
-              {todos.filter(t => t.status === "deleted").length === 0 ? (
-                <EmptyList message="No deleted tasks 🗑️" />
-              ) : (
-                <DeletedList todos={todos.filter(t => t.status === "deleted")} onRestore={restoreTodo} />
-              )}
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+              {/* Deleted */}
+              <TabPanel>
+                {todos.filter(t => t.status === "deleted").length === 0 ? (
+                  <EmptyList message="No deleted tasks 🗑️" />
+                ) : (
+                  <DeletedList todos={todos.filter(t => t.status === "deleted")} onRestore={restoreTodo} />
+                )}
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        </Stack>
       </Box>
     </ChakraProvider>
   );
