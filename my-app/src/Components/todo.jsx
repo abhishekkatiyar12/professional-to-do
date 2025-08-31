@@ -37,7 +37,7 @@ export default function TodoApp() {
     const fetchTodos = async () => {
       try {
         setLoading(true);
-        const res = await axios.get("http://localhost:5000/api/todos", axiosConfig);
+        const res = await axios.get("https://professional-to-do.onrender.com/api/todos", axiosConfig);
         setTodos(res.data.todos);
       } catch (err) {
         console.error(err);
@@ -52,7 +52,7 @@ export default function TodoApp() {
 const addTodo = async (todo) => {
   try {
     console.log("Sending todo:", todo);
-    const res = await axios.post("http://localhost:5000/api/todos", todo, axiosConfig);
+    const res = await axios.post("https://professional-to-do.onrender.com/api/todos", todo, axiosConfig);
     console.log("Response from backend:", res.data);
     setTodos([res.data.todo, ...todos]);
   } catch (err) {
@@ -65,7 +65,7 @@ const addTodo = async (todo) => {
   const completeTodo = async (id) => {
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/todos/${id}`,
+        `https://professional-to-do.onrender.com/api/todos/${id}`,
         { status: "completed", completedAt: new Date().toISOString() },
         axiosConfig
       );
@@ -78,7 +78,7 @@ const addTodo = async (todo) => {
   // Soft delete task
   const deleteTodo = async (id) => {
     try {
-      const res = await axios.delete(`http://localhost:5000/api/todos/${id}`, axiosConfig);
+      const res = await axios.delete(`https://professional-to-do.onrender.com/api/todos/${id}`, axiosConfig);
       setTodos(todos.map(t => t._id === id ? res.data.todo : t));
     } catch (err) {
       console.error(err);
@@ -89,7 +89,7 @@ const addTodo = async (todo) => {
   const restoreTodo = async (id) => {
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/todos/${id}/restore`,
+        `https://professional-to-do.onrender.com/api/todos/${id}/restore`,
         {},
         axiosConfig
       );
@@ -103,7 +103,7 @@ const addTodo = async (todo) => {
  const onUpdateTodo = async (id, updatedFields) => {
   try {
     const res = await axios.put(
-      `http://localhost:5000/api/todos/${id}`,
+      `https://professional-to-do.onrender.com/api/todos/${id}`,
       updatedFields,
       axiosConfig
     );

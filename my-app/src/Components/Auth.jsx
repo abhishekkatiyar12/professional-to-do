@@ -9,8 +9,8 @@ export default function AuthPage({ type, setUser, setPage }) {
   const handleSubmit = async () => {
     try {
       const url = type === "login"
-        ? "http://localhost:5000/api/auth/login"
-        : "http://localhost:5000/api/auth/register";
+        ? "hhttps://professional-to-do.onrender.com/api/auth/login"
+        : "https://professional-to-do.onrender.com/api/auth/register";
 
       const res = await axios.post(url, { email, password });
 
