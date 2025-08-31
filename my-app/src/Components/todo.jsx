@@ -51,9 +51,7 @@ export default function TodoApp() {
   // Add new task
 const addTodo = async (todo) => {
   try {
-    console.log("Sending todo:", todo);
     const res = await axios.post("https://professional-to-do.onrender.com/api/todos", todo, axiosConfig);
-    console.log("Response from backend:", res.data);
     setTodos([res.data.todo, ...todos]);
   } catch (err) {
     console.error("Error adding todo:", err.response?.data || err.message);
