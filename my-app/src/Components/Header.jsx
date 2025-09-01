@@ -13,21 +13,30 @@ import {
   ModalBody,
   ModalCloseButton,
   Text,
+  FormControl,
+  FormLabel,
+  Input,
+  VStack,
+  useToast,
 } from "@chakra-ui/react";
-import API from "../utils/api"; // use the axios instance
+import API from "../utils/api"; // axios instance
+
+
 
 export default function Header({ user, setPage, handleLogout }) {
   const [profile, setProfile] = useState(null);
+  const [editProfile, setEditProfile] = useState({});
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
 
-  // Fetch profile data
+  // Fetch profile
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) return;
-
       try {
-        const res = await API.get("/auth/profile"); // API instance handles baseURL + token
+        const res = await API.get("/auth/profile");
         setProfile(res.data);
+        setEditProfile(res.data);
       } catch (err) {
         console.error("Error fetching profile:", err);
       }
@@ -41,8 +50,33 @@ export default function Header({ user, setPage, handleLogout }) {
     handleLogout();
   };
 
+  const handleUpdate = async () => {
+    try {
+      const res = await API.put("/auth/profile", editProfile);
+      
+      setProfile(res.data.user);
+      toast({
+        title: "Profile Updated",
+        description: "Your changes have been saved successfully.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      onClose();
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      toast({
+        title: "Update Failed",
+        description: err.response?.data?.message || "Something went wrong",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
   return (
-    <Box bg="blue.600" color="white" px={6} py={4}>
+    <Box bg="blue.600" color="white" px={6} py={4} shadow="md">
       <HStack>
         <Heading size="md">📝 Professional To-Do App</Heading>
         <Spacer />
@@ -50,16 +84,14 @@ export default function Header({ user, setPage, handleLogout }) {
         {!user ? (
           <>
             <Button
-              colorScheme="green"
-              backgroundColor="black"
+              colorScheme="teal"
               variant="outline"
               onClick={() => setPage("register")}
             >
               Register
             </Button>
             <Button
-              colorScheme="blue"
-              backgroundColor="black"
+              colorScheme="yellow"
               variant="outline"
               onClick={() => setPage("login")}
             >
@@ -69,8 +101,7 @@ export default function Header({ user, setPage, handleLogout }) {
         ) : (
           <>
             <Button
-              colorScheme="purple"
-              backgroundColor="black"
+              colorScheme="black"
               variant="outline"
               onClick={onOpen}
             >
@@ -78,7 +109,6 @@ export default function Header({ user, setPage, handleLogout }) {
             </Button>
             <Button
               colorScheme="red"
-              backgroundColor="black"
               variant="outline"
               onClick={handleLogoutClick}
             >
@@ -92,25 +122,51 @@ export default function Header({ user, setPage, handleLogout }) {
       <Modal isOpen={isOpen} onClose={onClose} size="md">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>User Profile</ModalHeader>
+          <ModalHeader>👤 User Profile</ModalHeader>
           <ModalCloseButton />
-          <ModalBody>
+          <ModalBody pb={6}>
             {profile ? (
-              <>
-                <Text>
-                  <strong>Name:</strong> {profile.name}
+              <VStack spacing={4} align="stretch">
+                {/* Name */}
+                <FormControl>
+                  <FormLabel>Name</FormLabel>
+                  <Input
+                    value={editProfile.name || ""}
+                    onChange={(e) =>
+                      setEditProfile({ ...editProfile, name: e.target.value })
+                    }
+                  />
+                </FormControl>
+
+                {/* Email (non-editable) */}
+                <FormControl>
+                  <FormLabel>Email</FormLabel>
+                  <Input value={profile.email} isReadOnly />
+                </FormControl>
+
+                {/* Phone */}
+                <FormControl>
+                  <FormLabel>Phone</FormLabel>
+                  <Input
+                    value={editProfile.phone || ""}
+                    onChange={(e) =>
+                      setEditProfile({ ...editProfile, phone: e.target.value })
+                    }
+                  />
+                </FormControl>
+
+                {/* Created At */}
+                <Text fontSize="sm" color="gray.500">
+                  Joined: {new Date(profile.createdAt).toLocaleDateString()}
                 </Text>
-                <Text>
-                  <strong>Email:</strong> {profile.email}
-                </Text>
-                <Text>
-                  <strong>Phone:</strong> {profile.phone || "N/A"}
-                </Text>
-                <Text>
-                  <strong>Created At:</strong>{" "}
-                  {new Date(profile.createdAt).toLocaleString()}
-                </Text>
-              </>
+
+                <HStack justify="flex-end" pt={2}>
+                  <Button onClick={onClose}>Cancel</Button>
+                  <Button colorScheme="blue" onClick={handleUpdate}>
+                    Save Changes
+                  </Button>
+                </HStack>
+              </VStack>
             ) : (
               <Text>Loading profile...</Text>
             )}

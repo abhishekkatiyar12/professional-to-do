@@ -29,15 +29,20 @@ export default function TodoApp() {
   const [todos, setTodos] = useState([]);
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
   const token = localStorage.getItem("token");
   const axiosConfig = { headers: { Authorization: `Bearer ${token}` } };
 
+  // Fetch todos
   useEffect(() => {
     const fetchTodos = async () => {
       try {
         setLoading(true);
-        const res = await axios.get("https://professional-to-do.onrender.com/api/todos", axiosConfig);
+        const res = await axios.get(
+          "https://professional-to-do.onrender.com/api/todos",
+          axiosConfig
+        );
         setTodos(res.data.todos);
       } catch (err) {
         console.error(err);
@@ -48,9 +53,29 @@ export default function TodoApp() {
     fetchTodos();
   }, []);
 
+  // Fetch logged-in user profile
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get(
+          "https://professional-to-do.onrender.com/api/auth/profile",
+          axiosConfig
+        );
+        setUser(res.data);
+      } catch (err) {
+        console.error("Error fetching user profile:", err);
+      }
+    };
+    if (token) fetchUser();
+  }, [token]);
+
   const addTodo = async (todo) => {
     try {
-      const res = await axios.post("https://professional-to-do.onrender.com/api/todos", todo, axiosConfig);
+      const res = await axios.post(
+        "https://professional-to-do.onrender.com/api/todos",
+        todo,
+        axiosConfig
+      );
       setTodos([res.data.todo, ...todos]);
     } catch (err) {
       console.error("Error adding todo:", err.response?.data || err.message);
@@ -64,7 +89,7 @@ export default function TodoApp() {
         { status: "completed", completedAt: new Date().toISOString() },
         axiosConfig
       );
-      setTodos(todos.map(t => t._id === id ? res.data.todo : t));
+      setTodos(todos.map((t) => (t._id === id ? res.data.todo : t)));
     } catch (err) {
       console.error(err);
     }
@@ -72,8 +97,11 @@ export default function TodoApp() {
 
   const deleteTodo = async (id) => {
     try {
-      const res = await axios.delete(`https://professional-to-do.onrender.com/api/todos/${id}`, axiosConfig);
-      setTodos(todos.map(t => t._id === id ? res.data.todo : t));
+      const res = await axios.delete(
+        `https://professional-to-do.onrender.com/api/todos/${id}`,
+        axiosConfig
+      );
+      setTodos(todos.map((t) => (t._id === id ? res.data.todo : t)));
     } catch (err) {
       console.error(err);
     }
@@ -86,7 +114,7 @@ export default function TodoApp() {
         {},
         axiosConfig
       );
-      setTodos(todos.map(t => t._id === id ? res.data.todo : t));
+      setTodos(todos.map((t) => (t._id === id ? res.data.todo : t)));
     } catch (err) {
       console.error(err);
     }
@@ -99,24 +127,37 @@ export default function TodoApp() {
         updatedFields,
         axiosConfig
       );
-      setTodos(todos.map(t => (t._id === id ? res.data.todo : t)));
+      setTodos(todos.map((t) => (t._id === id ? res.data.todo : t)));
     } catch (err) {
       console.error(err);
     }
   };
 
   const getFilteredTodos = () => {
-    const pendingTodos = todos.filter(t => t.status === "pending");
-    if (filter === "today") return pendingTodos.filter(t => isToday(t.dueDate));
-    if (filter === "tomorrow") return pendingTodos.filter(t => isTomorrow(t.dueDate));
-    if (filter === "overdue") return pendingTodos.filter(t => isOverdue(t.dueDate));
+    const pendingTodos = todos.filter((t) => t.status === "pending");
+    if (filter === "today") return pendingTodos.filter((t) => isToday(t.dueDate));
+    if (filter === "tomorrow")
+      return pendingTodos.filter((t) => isTomorrow(t.dueDate));
+    if (filter === "overdue")
+      return pendingTodos.filter((t) => isOverdue(t.dueDate));
     return pendingTodos;
   };
 
   const EmptyList = ({ message }) => (
-    <VStack spacing={3} mt={6} p={6} border="1px dashed gray" borderRadius="md" bg="gray.50">
+    <VStack
+      spacing={3}
+      mt={6}
+      p={6}
+      border="1px dashed gray"
+      borderRadius="md"
+      bg="gray.50"
+    >
       <InfoOutlineIcon w={10} h={10} color="gray.400" />
-      <Text fontSize={{ base: "md", md: "lg" }} color="gray.600" textAlign="center">
+      <Text
+        fontSize={{ base: "md", md: "lg" }}
+        color="gray.600"
+        textAlign="center"
+      >
         {message}
       </Text>
     </VStack>
@@ -134,13 +175,17 @@ export default function TodoApp() {
   return (
     <ChakraProvider theme={theme}>
       <Box maxW="900px" mx="auto" p={{ base: 4, md: 6 }}>
-        <Heading mb={6} textAlign="center" fontSize={{ base: "2xl", md: "3xl" }}>
+        <Heading
+          mb={6}
+          textAlign="center"
+          fontSize={{ base: "2xl", md: "3xl" }}
+        >
           📝 Professional To-Do App
         </Heading>
 
         <Stack spacing={4}>
           {/* Add New Task */}
-          <AddTodo addTodo={addTodo} />
+          <AddTodo addTodo={addTodo} user={user} />
 
           {/* Tabs */}
           <Tabs variant="enclosed">
@@ -153,11 +198,37 @@ export default function TodoApp() {
             <TabPanels>
               {/* Pending */}
               <TabPanel>
-                <ButtonGroup mb={4} size="sm" isAttached variant="outline" flexWrap="wrap">
-                  <Button onClick={() => setFilter("all")} colorScheme={filter === "all" ? "blue" : "gray"}>All</Button>
-                  <Button onClick={() => setFilter("today")} colorScheme={filter === "today" ? "blue" : "gray"}>Today</Button>
-                  <Button onClick={() => setFilter("tomorrow")} colorScheme={filter === "tomorrow" ? "blue" : "gray"}>Tomorrow</Button>
-                  <Button onClick={() => setFilter("overdue")} colorScheme={filter === "overdue" ? "blue" : "gray"}>Overdue</Button>
+                <ButtonGroup
+                  mb={4}
+                  size="sm"
+                  isAttached
+                  variant="outline"
+                  flexWrap="wrap"
+                >
+                  <Button
+                    onClick={() => setFilter("all")}
+                    colorScheme={filter === "all" ? "blue" : "gray"}
+                  >
+                    All
+                  </Button>
+                  <Button
+                    onClick={() => setFilter("today")}
+                    colorScheme={filter === "today" ? "blue" : "gray"}
+                  >
+                    Today
+                  </Button>
+                  <Button
+                    onClick={() => setFilter("tomorrow")}
+                    colorScheme={filter === "tomorrow" ? "blue" : "gray"}
+                  >
+                    Tomorrow
+                  </Button>
+                  <Button
+                    onClick={() => setFilter("overdue")}
+                    colorScheme={filter === "overdue" ? "blue" : "gray"}
+                  >
+                    Overdue
+                  </Button>
                 </ButtonGroup>
 
                 {getFilteredTodos().length === 0 ? (
@@ -176,19 +247,24 @@ export default function TodoApp() {
 
               {/* Completed */}
               <TabPanel>
-                {todos.filter(t => t.status === "completed").length === 0 ? (
+                {todos.filter((t) => t.status === "completed").length === 0 ? (
                   <EmptyList message="No tasks completed yet 🎯" />
                 ) : (
-                  <CompletedList todos={todos.filter(t => t.status === "completed")} />
+                  <CompletedList
+                    todos={todos.filter((t) => t.status === "completed")}
+                  />
                 )}
               </TabPanel>
 
               {/* Deleted */}
               <TabPanel>
-                {todos.filter(t => t.status === "deleted").length === 0 ? (
+                {todos.filter((t) => t.status === "deleted").length === 0 ? (
                   <EmptyList message="No deleted tasks 🗑️" />
                 ) : (
-                  <DeletedList todos={todos.filter(t => t.status === "deleted")} onRestore={restoreTodo} />
+                  <DeletedList
+                    todos={todos.filter((t) => t.status === "deleted")}
+                    onRestore={restoreTodo}
+                  />
                 )}
               </TabPanel>
             </TabPanels>

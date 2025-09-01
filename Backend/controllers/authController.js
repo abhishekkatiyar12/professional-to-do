@@ -54,3 +54,37 @@ exports.profile = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// Update Profile
+exports.updateprofile = async (req, res) => {
+  try {
+    const { name, email, phone } = req.body;
+
+    // Find the logged-in user
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update only allowed fields
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (phone) user.phone = phone;
+
+    const updatedUser = await user.save();
+
+    res.json({
+      message: "Profile updated successfully",
+      user: {
+        id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        createdAt: updatedUser.createdAt,
+      },
+    });
+  } catch (err) {
+    console.error("Update profile error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
