@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Box, Input, Button, Heading, Text, VStack, useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import API from "../api"; // make sure this path is correct
+import API from "../utils/api"; // make sure this path is correct
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
