@@ -22,14 +22,15 @@ import AddTodo from "./AddTodo";
 import TodoList from "./TodoList";
 import CompletedList from "./CompletedList";
 import DeletedList from "./DeletedList";
+import Header from "./Header";
 import theme from "../theme";
 import { isToday, isTomorrow, isOverdue } from "../utils/dateUtils";
 
-export default function TodoApp() {
+export default function TodoApp({user, setUser}) {
   const [todos, setTodos] = useState([]);
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
+  // const [user, setUser] = useState(null);
 
   const token = localStorage.getItem("token");
   const axiosConfig = { headers: { Authorization: `Bearer ${token}` } };
@@ -175,13 +176,8 @@ export default function TodoApp() {
   return (
     <ChakraProvider theme={theme}>
       <Box maxW="900px" mx="auto" p={{ base: 4, md: 6 }}>
-        <Heading
-          mb={6}
-          textAlign="center"
-          fontSize={{ base: "2xl", md: "3xl" }}
-        >
-          📝 Professional To-Do App
-        </Heading>
+        
+        
 
         <Stack spacing={4}>
           {/* Add New Task */}

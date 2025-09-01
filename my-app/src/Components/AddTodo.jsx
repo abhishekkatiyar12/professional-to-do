@@ -1,12 +1,9 @@
-import { useState } from "react";
+import { useRef } from "react";
 import {
   Box,
   Stack,
-  Text,
   Input,
   Button,
-  InputGroup,
-  InputLeftAddon,
   FormControl,
   FormLabel,
   Card,
@@ -15,17 +12,30 @@ import {
 } from "@chakra-ui/react";
 
 export default function AddTodo({ addTodo, user }) {
-  const [name, setName] = useState("");
-  const [dueDate, setDueDate] = useState("");
-  const [dueTime, setDueTime] = useState("00:00");
+  const nameRef = useRef();
+  const dueDateRef = useRef();
+  const dueTimeRef = useRef();
+
+  // Get today's date in YYYY-MM-DD format for restricting min date
+  const today = new Date().toISOString().split("T")[0];
 
   const handleAdd = () => {
-    if (!name || !dueDate || !dueTime)
+    const name = nameRef.current.value.trim();
+    const dueDate = dueDateRef.current.value;
+    const dueTime = dueTimeRef.current.value;
+
+    if (!name || !dueDate || !dueTime) {
       return alert("Please provide task name, due date, and due time");
+    }
 
     const dueDateTime = new Date(dueDate);
     const [hours, minutes] = dueTime.split(":");
     dueDateTime.setHours(hours, minutes, 0, 0);
+
+    // Prevent past dates explicitly in JS also
+    if (dueDateTime < new Date()) {
+      return alert("Due date and time must be in the future.");
+    }
 
     const newTodo = {
       name,
@@ -35,9 +45,11 @@ export default function AddTodo({ addTodo, user }) {
     };
 
     addTodo(newTodo);
-    setName("");
-    setDueDate("");
-    setDueTime("");
+
+    // Clear inputs manually since we are using refs
+    nameRef.current.value = "";
+    dueDateRef.current.value = "";
+    dueTimeRef.current.value = "";
   };
 
   return (
@@ -64,8 +76,7 @@ export default function AddTodo({ addTodo, user }) {
               </FormLabel>
               <Input
                 placeholder="Enter task name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                ref={nameRef}
                 size="md"
               />
             </FormControl>
@@ -77,8 +88,8 @@ export default function AddTodo({ addTodo, user }) {
               </FormLabel>
               <Input
                 type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
+                ref={dueDateRef}
+                min={today}   // ✅ restricts to today & future
                 size="md"
               />
             </FormControl>
@@ -88,12 +99,7 @@ export default function AddTodo({ addTodo, user }) {
               <FormLabel fontSize="sm" fontWeight="medium">
                 Due Time
               </FormLabel>
-              <Input
-                type="time"
-                value={dueTime}
-                onChange={(e) => setDueTime(e.target.value)}
-                size="md"
-              />
+              <Input type="time" defaultValue="00:00" ref={dueTimeRef} size="md" />
             </FormControl>
 
             {/* Add Button */}

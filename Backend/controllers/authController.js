@@ -9,19 +9,54 @@ const generateToken = (id) => {
 // Register
 exports.register = async (req, res) => {
   const { name, email, password, phone } = req.body;
-  try {
-    const userExists = await User.findOne({ email });
-    if (userExists) return res.status(400).json({ message: "User already exists" });
 
-    const user = await User.create({ name, email, password, phone });
+  try {
+    if (!name || !email || !password || !phone) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // ✅ Validate phone number (10 digits, India format for example)
+    const phoneRegex = /^[6-9]\d{9}$/; 
+    if (!phoneRegex.test(phone)) {
+      return res.status(400).json({ message: "Invalid phone number format" });
+    }
+
+    // ✅ Check if email already exists (case insensitive)
+    const existingEmail = await User.findOne({ email: email.toLowerCase() });
+    if (existingEmail) {
+      return res.status(400).json({ message: "Email is already registered" });
+    }
+
+    // ✅ Check if phone already exists
+    const existingPhone = await User.findOne({ phone });
+    if (existingPhone) {
+      return res.status(400).json({ message: "Phone number is already registered" });
+    }
+
+    // ✅ Create new user
+    const user = await User.create({ 
+      name, 
+      email: email.toLowerCase(), 
+      password, 
+      phone 
+    });
+
     res.status(201).json({
       token: generateToken(user._id),
-      user: { id: user._id, name: user.name, email: user.email, phone: user.phone }
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+      },
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: err.message || "Server error" });
   }
 };
+
+
 
 // Login
 exports.login = async (req, res) => {

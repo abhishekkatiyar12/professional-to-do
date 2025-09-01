@@ -21,15 +21,13 @@ import {
 } from "@chakra-ui/react";
 import API from "../utils/api"; // axios instance
 
-
-
-export default function Header({ user, setPage, handleLogout }) {
+export default function Header({ user, setUser, setPage, handleLogout}) {
   const [profile, setProfile] = useState(null);
   const [editProfile, setEditProfile] = useState({});
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
-  // Fetch profile
+  // Fetch profile on mount
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) return;
@@ -47,14 +45,19 @@ export default function Header({ user, setPage, handleLogout }) {
   const handleLogoutClick = () => {
     localStorage.removeItem("token");
     setProfile(null);
+    setUser(null);
     handleLogout();
   };
 
   const handleUpdate = async () => {
     try {
+      console.log("trying to update the profile");
+      console.log(editProfile)
       const res = await API.put("/auth/profile", editProfile);
-      
+      console.log(res);
       setProfile(res.data.user);
+      setUser(res.data.user); // 🔥 Update parent state so AddTodo reflects new name
+
       toast({
         title: "Profile Updated",
         description: "Your changes have been saved successfully.",
@@ -100,11 +103,7 @@ export default function Header({ user, setPage, handleLogout }) {
           </>
         ) : (
           <>
-            <Button
-              colorScheme="black"
-              variant="outline"
-              onClick={onOpen}
-            >
+            <Button colorScheme="black" variant="outline" onClick={onOpen}>
               Profile
             </Button>
             <Button
