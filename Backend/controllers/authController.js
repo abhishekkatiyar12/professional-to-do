@@ -101,10 +101,33 @@ exports.updateprofile = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Update only allowed fields
+    // ✅ Check email uniqueness if updating
+    if (email && email.toLowerCase() !== user.email) {
+      const emailExists = await User.findOne({ email: email.toLowerCase() });
+      if (emailExists) {
+        return res.status(400).json({ message: "Email is already registered" });
+      }
+      user.email = email.toLowerCase();
+    }
+
+    // ✅ Check phone uniqueness if updating
+    if (phone && phone !== user.phone) {
+      const phoneExists = await User.findOne({ phone });
+      if (phoneExists) {
+        return res.status(400).json({ message: "Phone number is already registered" });
+      }
+
+      // Validate phone format (10-digit Indian format)
+      const phoneRegex = /^[6-9]\d{9}$/;
+      if (!phoneRegex.test(phone)) {
+        return res.status(400).json({ message: "Invalid phone number format" });
+      }
+
+      user.phone = phone;
+    }
+
+    // ✅ Update only allowed fields
     if (name) user.name = name;
-    if (email) user.email = email;
-    if (phone) user.phone = phone;
 
     const updatedUser = await user.save();
 
