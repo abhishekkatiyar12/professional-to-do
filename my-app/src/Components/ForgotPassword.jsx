@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Box, Input, Button, Heading, Text, VStack, useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
+import API from "../api"; // make sure this path is correct
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -26,30 +27,12 @@ export default function ForgotPassword() {
     setMessage("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/forgotpassword", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        toast({
-          title: "Error",
-          description: data.message || "Something went wrong.",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-        });
-      } else {
-        setMessage(data.message || "If your email is registered, a reset link has been sent.");
-      }
+      const { data } = await API.post("/auth/forgotpassword", { email });
+      setMessage(data.message || "If your email is registered, a reset link has been sent.");
     } catch (error) {
-      console.error(error);
       toast({
-        title: "Network Error",
-        description: "Unable to send reset link. Try again later.",
+        title: "Error",
+        description: error.response?.data?.message || "Something went wrong.",
         status: "error",
         duration: 3000,
         isClosable: true,
