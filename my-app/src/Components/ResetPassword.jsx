@@ -60,7 +60,7 @@ export default function ResetPassword() {
       setLoading(true);
 
       // Use API instance
-      const { data } = await API.post(`/auth/resetpassword/${token}`, { password });
+      const { data } = await API.put(`/auth/resetpassword/${token}`, { password });
 
       toast({
         title: "Password Reset",
