@@ -7,7 +7,7 @@ import Header from "./Components/Header";
 import Footer from "./Components/Footer";
 import Home from "./Components/Home";
 import Login from "./Components/Login";
-import TodoApp from "./Components/TodoApp";
+import TodoApp from "./Components/todoApp";
 import Register from "./Components/register";
 import ForgotPassword from "./Components/forgotpassword";
 import ResetPassword from "./Components/resetpassword";
