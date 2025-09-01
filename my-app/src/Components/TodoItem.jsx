@@ -1,16 +1,30 @@
-import { HStack, Checkbox, IconButton, Text, VStack, Input, Button, Select, Box, Badge, Spacer } from "@chakra-ui/react";
-import { DeleteIcon, EditIcon, CloseIcon } from "@chakra-ui/icons";
 import { useState, useEffect } from "react";
+import {
+  HStack,
+  VStack,
+  Box,
+  Checkbox,
+  Text,
+  Input,
+  Select,
+  Button,
+  IconButton,
+  Badge,
+} from "@chakra-ui/react";
+import { DeleteIcon, EditIcon, CloseIcon } from "@chakra-ui/icons";
 
 export default function TodoItem({ todo, onComplete, onDelete, onUpdateTodo }) {
+  // Format date and time for inputs
   const formatDate = (date) => {
     const d = new Date(date);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+      d.getDate()
+    ).padStart(2, "0")}`;
   };
 
   const formatTime = (date) => {
     const d = new Date(date);
-    return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
   };
 
   const [isEditing, setIsEditing] = useState(false);
@@ -18,12 +32,14 @@ export default function TodoItem({ todo, onComplete, onDelete, onUpdateTodo }) {
   const [status, setStatus] = useState(todo.status);
   const [dueDate, setDueDate] = useState(formatDate(todo.dueDate));
   const [dueTime, setDueTime] = useState(formatTime(todo.dueDate));
+  const [description, setDescription] = useState(todo.description || "");
 
   useEffect(() => {
     setName(todo.name);
     setStatus(todo.status);
     setDueDate(formatDate(todo.dueDate));
     setDueTime(formatTime(todo.dueDate));
+    setDescription(todo.description || "");
   }, [todo]);
 
   const handleUpdate = () => {
@@ -31,32 +47,19 @@ export default function TodoItem({ todo, onComplete, onDelete, onUpdateTodo }) {
     const [hours, minutes] = dueTime.split(":");
     updatedDue.setHours(hours, minutes, 0, 0);
 
-    onUpdateTodo(todo._id, { name, status, dueDate: updatedDue });
+    onUpdateTodo(todo._id, { name, status, dueDate: updatedDue, description });
     setIsEditing(false);
   };
 
-  const bgColor = status === "completed" ? "green.50" 
-                  : status === "deleted" ? "red.50" 
-                  : "gray.50"; 
+  const bgColor =
+    status === "completed" ? "green.50" : status === "deleted" ? "red.50" : "gray.50";
 
   return (
-    <Box
-      borderWidth="1px"
-      borderColor="gray.200"
-      borderRadius="md"
-      bg={bgColor}
-      p={4}
-      shadow="sm"
-      _hover={{ shadow: "md" }}
-    >
+    <Box borderWidth="1px" borderColor="gray.200" borderRadius="md" bg={bgColor} p={4} shadow="sm" _hover={{ shadow: "md" }}>
       <VStack align="stretch" spacing={2}>
-        {/* Header with checkbox and action buttons */}
-        <HStack spacing={2} justify="space-between" align="center">
-          <Checkbox
-            isChecked={status === "completed"}
-            onChange={() => onComplete(todo._id)}
-            flex="1"
-          >
+        {/* Header: Checkbox + Actions */}
+        <HStack justify="space-between" align="center">
+          <Checkbox isChecked={status === "completed"} onChange={() => onComplete(todo._id)} flex="1">
             <Text fontWeight="bold" fontSize={{ base: "14px", md: "16px" }}>
               {todo.name}
             </Text>
@@ -79,43 +82,29 @@ export default function TodoItem({ todo, onComplete, onDelete, onUpdateTodo }) {
           </HStack>
         </HStack>
 
+        {/* Description */}
+        {!isEditing && description && <Text fontSize="sm" color="gray.700">{description}</Text>}
+
         {/* Created date */}
         <Text fontSize="sm" color="gray.500">Created: {new Date(todo.createdAt).toLocaleString()}</Text>
 
         {/* Edit mode */}
         {isEditing ? (
           <VStack align="stretch" spacing={2}>
-            <Input
-              value={name}
-              size="sm"
-              placeholder="Task name"
-              onChange={(e) => setName(e.target.value)}
-            />
+            <Input value={name} size="sm" placeholder="Task name" onChange={(e) => setName(e.target.value)} />
+            <Input value={description} size="sm" placeholder="Description or links" onChange={(e) => setDescription(e.target.value)} />
             <Select value={status} size="sm" onChange={(e) => setStatus(e.target.value)}>
               <option value="pending">Pending</option>
               <option value="completed">Completed</option>
               <option value="deleted">Deleted</option>
             </Select>
             <HStack spacing={2} wrap="wrap">
-              <Input
-                type="date"
-                value={dueDate}
-                size="sm"
-                onChange={(e) => setDueDate(e.target.value)}
-              />
-              <Input
-                type="time"
-                value={dueTime}
-                size="sm"
-                onChange={(e) => setDueTime(e.target.value)}
-              />
+              <Input type="date" value={dueDate} size="sm" onChange={(e) => setDueDate(e.target.value)} />
+              <Input type="time" value={dueTime} size="sm" onChange={(e) => setDueTime(e.target.value)} />
             </HStack>
-            <Button size="sm" colorScheme="blue" onClick={handleUpdate}>
-              Update
-            </Button>
+            <Button size="sm" colorScheme="blue" onClick={handleUpdate}>Update</Button>
           </VStack>
         ) : (
-          // View mode
           <HStack justify="space-between" wrap="wrap">
             <Text fontSize={{ base: "14px", md: "15px" }}>Due: {new Date(todo.dueDate).toLocaleString()}</Text>
             <HStack spacing={2}>

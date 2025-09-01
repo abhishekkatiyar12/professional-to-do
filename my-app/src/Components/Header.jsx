@@ -19,18 +19,18 @@ import {
   VStack,
   useToast,
 } from "@chakra-ui/react";
-import API from "../utils/api"; // axios instance
+import { Link } from "react-router-dom";
+import API from "../utils/api";
 
-export default function Header({ user, setUser, setPage, handleLogout}) {
+export default function Header({ user, setUser, handleLogout }) {
   const [profile, setProfile] = useState(null);
   const [editProfile, setEditProfile] = useState({});
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
-  // Fetch profile on mount
   useEffect(() => {
+    if (!user) return;
     const fetchProfile = async () => {
-      if (!user) return;
       try {
         const res = await API.get("/auth/profile");
         setProfile(res.data);
@@ -51,23 +51,18 @@ export default function Header({ user, setUser, setPage, handleLogout}) {
 
   const handleUpdate = async () => {
     try {
-      console.log("trying to update the profile");
-      console.log(editProfile)
       const res = await API.put("/auth/profile", editProfile);
-      console.log(res);
       setProfile(res.data.user);
-      setUser(res.data.user); // 🔥 Update parent state so AddTodo reflects new name
-
+      setUser(res.data.user);
       toast({
         title: "Profile Updated",
-        description: "Your changes have been saved successfully.",
+        description: "Changes saved successfully.",
         status: "success",
         duration: 3000,
         isClosable: true,
       });
       onClose();
     } catch (err) {
-      console.error("Error updating profile:", err);
       toast({
         title: "Update Failed",
         description: err.response?.data?.message || "Something went wrong",
@@ -83,21 +78,12 @@ export default function Header({ user, setUser, setPage, handleLogout}) {
       <HStack>
         <Heading size="md">📝 Professional To-Do App</Heading>
         <Spacer />
-
         {!user ? (
           <>
-            <Button
-              colorScheme="teal"
-              variant="outline"
-              onClick={() => setPage("register")}
-            >
+            <Button as={Link} to="/register" colorScheme="black" variant="outline">
               Register
             </Button>
-            <Button
-              colorScheme="yellow"
-              variant="outline"
-              onClick={() => setPage("login")}
-            >
+            <Button as={Link} to="/login" colorScheme="black" variant="outline">
               Login
             </Button>
           </>
@@ -106,18 +92,13 @@ export default function Header({ user, setUser, setPage, handleLogout}) {
             <Button colorScheme="black" variant="outline" onClick={onOpen}>
               Profile
             </Button>
-            <Button
-              colorScheme="red"
-              variant="outline"
-              onClick={handleLogoutClick}
-            >
+            <Button colorScheme="red" variant="outline" onClick={handleLogoutClick}>
               Logout
             </Button>
           </>
         )}
       </HStack>
 
-      {/* Profile Modal */}
       <Modal isOpen={isOpen} onClose={onClose} size="md">
         <ModalOverlay />
         <ModalContent>
@@ -126,7 +107,6 @@ export default function Header({ user, setUser, setPage, handleLogout}) {
           <ModalBody pb={6}>
             {profile ? (
               <VStack spacing={4} align="stretch">
-                {/* Name */}
                 <FormControl>
                   <FormLabel>Name</FormLabel>
                   <Input
@@ -136,14 +116,10 @@ export default function Header({ user, setUser, setPage, handleLogout}) {
                     }
                   />
                 </FormControl>
-
-                {/* Email (non-editable) */}
                 <FormControl>
                   <FormLabel>Email</FormLabel>
                   <Input value={profile.email} isReadOnly />
                 </FormControl>
-
-                {/* Phone */}
                 <FormControl>
                   <FormLabel>Phone</FormLabel>
                   <Input
@@ -153,12 +129,9 @@ export default function Header({ user, setUser, setPage, handleLogout}) {
                     }
                   />
                 </FormControl>
-
-                {/* Created At */}
                 <Text fontSize="sm" color="gray.500">
                   Joined: {new Date(profile.createdAt).toLocaleDateString()}
                 </Text>
-
                 <HStack justify="flex-end" pt={2}>
                   <Button onClick={onClose}>Cancel</Button>
                   <Button colorScheme="blue" onClick={handleUpdate}>

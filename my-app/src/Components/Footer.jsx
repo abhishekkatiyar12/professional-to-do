@@ -7,7 +7,9 @@ export default function Footer() {
   return (
     <Box bg="gray.100" color="gray.700" textAlign="center" py={6} mt={10} shadow="sm">
       {/* Copyright */}
-      <Text fontSize="sm">© {new Date().getFullYear()} Professional To-Do App. All rights reserved.</Text>
+      <Text fontSize="sm">
+        © {new Date().getFullYear()} Professional To-Do App. All rights reserved.
+      </Text>
 
       {/* Made with love */}
       <Text
@@ -17,34 +19,34 @@ export default function Footer() {
         fontSize="md"
         mt={1}
       >
-        Made with <Icon as={HiHeart} color="red.500" mx={1} boxSize={5} /> by{" "}
+        Made with <Icon as={HiHeart} color="red.500" mx={1} boxSize={{ base: 4, md: 5 }} /> by{" "}
         <Text as="span" fontWeight="bold" color="blue.600" ml={1}>
           Abhishek 🚀
         </Text>
       </Text>
 
       {/* Social Links */}
-      <HStack spacing={6} justify="center" mt={4}>
-        <Link href="https://www.linkedin.com/in/contactabhishekk/" isExternal>
+      <HStack spacing={{ base: 4, md: 6 }} justify="center" mt={4}>
+        <Link href="https://www.linkedin.com/in/contactabhishekk/" isExternal aria-label="LinkedIn">
           <Icon
             as={FaLinkedin}
-            boxSize={6}
+            boxSize={{ base: 5, md: 6 }}
             transition="all 0.3s"
             _hover={{ color: "blue.600", transform: "scale(1.2)" }}
           />
         </Link>
-        <Link href="https://www.instagram.com/yourusername" isExternal>
+        <Link href="https://www.instagram.com/yourusername" isExternal aria-label="Instagram">
           <Icon
             as={FaInstagram}
-            boxSize={6}
+            boxSize={{ base: 5, md: 6 }}
             transition="all 0.3s"
             _hover={{ color: "pink.500", transform: "scale(1.2)" }}
           />
         </Link>
-        <Link href="https://leetcode.com/u/abhishekkatiyar1203/" isExternal>
+        <Link href="https://leetcode.com/u/abhishekkatiyar1203/" isExternal aria-label="LeetCode">
           <Icon
             as={SiLeetcode}
-            boxSize={6}
+            boxSize={{ base: 5, md: 6 }}
             transition="all 0.3s"
             _hover={{ color: "orange.500", transform: "scale(1.2)" }}
           />

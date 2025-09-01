@@ -9,12 +9,17 @@ exports.getTodos = async (req, res) => {
 
 // Create todo
 exports.createTodo = async (req, res) => {
-  const { name, dueDate } = req.body;
-  const todo = await Todo.create({ user: req.user._id, name, dueDate });
+  const { name, dueDate, description } = req.body; // added description
+  const todo = await Todo.create({
+    user: req.user._id,
+    name,
+    dueDate,
+    description: description || "" // default empty string if not provided
+  });
   res.status(201).json({ todo });
 };
 
-// Update todo (status, dueDate)
+// Update todo (status, dueDate, description)
 exports.updateTodo = async (req, res) => {
   const todo = await Todo.findById(req.params.id);
   if (!todo) return res.status(404).json({ message: "Todo not found" });
@@ -22,13 +27,16 @@ exports.updateTodo = async (req, res) => {
   if (todo.user.toString() !== req.user._id.toString())
     return res.status(401).json({ message: "Not authorized" });
 
-  const { name, status, dueDate } = req.body;
+  const { name, status, dueDate, description } = req.body;
   if (name) todo.name = name;
-  if (status) todo.status = status;
+  if (status) {
+    todo.status = status;
+    if (status === "completed") todo.completedAt = new Date();
+  }
   if (dueDate) todo.dueDate = dueDate;
-  if (status === "completed") todo.completedAt = new Date();
-  await todo.save();
+  if (description !== undefined) todo.description = description;
 
+  await todo.save();
   res.json({ todo });
 };
 

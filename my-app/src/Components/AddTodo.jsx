@@ -9,59 +9,89 @@ import {
   Card,
   CardBody,
   Heading,
+  useToast,
 } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
 
 export default function AddTodo({ addTodo, user }) {
   const nameRef = useRef();
   const dueDateRef = useRef();
   const dueTimeRef = useRef();
+  const descriptionRef = useRef();
+  const toast = useToast();
+  const navigate = useNavigate();
 
-  // Get today's date in YYYY-MM-DD format for restricting min date
+  // Redirect to login if user is not logged in
+  if (!user) {
+    navigate("/login");
+    return null;
+  }
+
   const today = new Date().toISOString().split("T")[0];
 
   const handleAdd = () => {
     const name = nameRef.current.value.trim();
     const dueDate = dueDateRef.current.value;
     const dueTime = dueTimeRef.current.value;
+    const description = descriptionRef.current.value.trim();
 
     if (!name || !dueDate || !dueTime) {
-      return alert("Please provide task name, due date, and due time");
+      return toast({
+        title: "Missing fields",
+        description: "Please provide task name, due date, and due time",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
     }
 
     const dueDateTime = new Date(dueDate);
     const [hours, minutes] = dueTime.split(":");
     dueDateTime.setHours(hours, minutes, 0, 0);
 
-    // Prevent past dates explicitly in JS also
     if (dueDateTime < new Date()) {
-      return alert("Due date and time must be in the future.");
+      return toast({
+        title: "Invalid date/time",
+        description: "Due date and time must be in the future.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     }
 
     const newTodo = {
       name,
       dueDate: dueDateTime,
+      description,
       status: "pending",
       createdAt: new Date(),
     };
 
     addTodo(newTodo);
 
-    // Clear inputs manually since we are using refs
+    // Clear inputs
     nameRef.current.value = "";
-    dueDateRef.current.value = "";
-    dueTimeRef.current.value = "";
+    dueDateRef.current.value = today;
+    dueTimeRef.current.value = new Date().toTimeString().slice(0, 5);
+    descriptionRef.current.value = "";
+
+    toast({
+      title: "Task added",
+      description: `${name} has been added successfully`,
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
   };
 
   return (
     <Card shadow="lg" borderRadius="2xl" bg="white" px={6} py={4}>
       <CardBody>
         <Stack spacing={6}>
-          {/* Greeting */}
           <Heading fontSize="lg" color="blue.600">
             👋 Hello, {user?.name || "User"}
           </Heading>
 
-          {/* Inputs */}
           <Stack
             spacing={4}
             direction={{ base: "column", md: "row" }}
@@ -69,40 +99,35 @@ export default function AddTodo({ addTodo, user }) {
             justify="space-between"
             flexWrap="wrap"
           >
-            {/* Task Name */}
             <FormControl w={{ base: "100%", md: "250px" }}>
-              <FormLabel fontSize="sm" fontWeight="medium">
-                Task Name
-              </FormLabel>
+              <FormLabel fontSize="sm" fontWeight="medium">Task Name</FormLabel>
+              <Input placeholder="Enter task name" ref={nameRef} size="md" />
+            </FormControl>
+
+            <FormControl w={{ base: "100%", md: "200px" }}>
+              <FormLabel fontSize="sm" fontWeight="medium">Due Date</FormLabel>
+              <Input type="date" ref={dueDateRef} min={today} size="md" defaultValue={today} />
+            </FormControl>
+
+            <FormControl w={{ base: "100%", md: "200px" }}>
+              <FormLabel fontSize="sm" fontWeight="medium">Due Time</FormLabel>
               <Input
-                placeholder="Enter task name"
-                ref={nameRef}
+                type="time"
+                defaultValue={new Date().toTimeString().slice(0, 5)}
+                ref={dueTimeRef}
                 size="md"
               />
             </FormControl>
 
-            {/* Due Date */}
-            <FormControl w={{ base: "100%", md: "200px" }}>
-              <FormLabel fontSize="sm" fontWeight="medium">
-                Due Date
-              </FormLabel>
+            <FormControl w={{ base: "100%", md: "500px" }}>
+              <FormLabel fontSize="sm" fontWeight="medium">Description</FormLabel>
               <Input
-                type="date"
-                ref={dueDateRef}
-                min={today}   // ✅ restricts to today & future
+                placeholder="Enter description or links"
+                ref={descriptionRef}
                 size="md"
               />
             </FormControl>
 
-            {/* Due Time */}
-            <FormControl w={{ base: "100%", md: "200px" }}>
-              <FormLabel fontSize="sm" fontWeight="medium">
-                Due Time
-              </FormLabel>
-              <Input type="time" defaultValue="00:00" ref={dueTimeRef} size="md" />
-            </FormControl>
-
-            {/* Add Button */}
             <Box w={{ base: "100%", md: "150px" }} mt={{ base: 4, md: 6 }}>
               <Button
                 colorScheme="blue"
