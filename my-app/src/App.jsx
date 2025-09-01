@@ -7,10 +7,12 @@ import Header from "./Components/Header";
 import Footer from "./Components/Footer";
 import Home from "./Components/Home";
 import Login from "./Components/Login";
-import Register from "./Components/Register";
-import ForgotPassword from "./Components/ForgotPassword";
-import ResetPassword from "./Components/ResetPassword";
 import TodoApp from "./Components/TodoApp";
+import Register from "./Components/register";
+import ForgotPassword from "./Components/forgotpassword";
+import ResetPassword from "./Components/resetpassword";
+
+
 
 export default function App() {
   const token = localStorage.getItem("token");
