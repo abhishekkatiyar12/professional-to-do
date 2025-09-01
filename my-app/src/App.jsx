@@ -9,7 +9,7 @@ import Home from "./Components/Home";
 // import Login from "./Components/Login";
 // import ForgotPassword from "./Components/ForgotPassword";
 // import ResetPassword from "./Components/ResetPassword";
-import TodoApp from "./Components/TodoApp"
+import TodoApp from "./Components/todoApp"
 // import Register from "./Components/Register";
 import Login from "./Components/Login";
 import Register from "./Components/register"; // must match file name exactly
