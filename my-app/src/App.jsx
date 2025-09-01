@@ -1,18 +1,15 @@
 import { ChakraProvider, Box } from "@chakra-ui/react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
 import { useState } from "react";
 
 import theme from "./theme";
 import Header from "./Components/Header";
 import Footer from "./Components/Footer";
 import Home from "./Components/Home";
-// import Login from "./Components/Login";
-// import ForgotPassword from "./Components/ForgotPassword";
-// import ResetPassword from "./Components/ResetPassword";
 import TodoApp from "./Components/todoApp"
-// import Register from "./Components/Register";
 import Login from "./Components/Login";
-import Register from "./Components/register"; // must match file name exactly
+import Register from "./Components/register"; 
 import ForgotPassword from "./Components/ForgotPassword";
 import ResetPassword from "./Components/ResetPassword";
 
