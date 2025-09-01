@@ -41,3 +41,16 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.profile = async (req, res) => {
+  try {
+    // req.user is already set by protect middleware
+    if (!req.user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(req.user);
+  } catch (err) {
+    console.error("Profile fetch error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
